@@ -3,10 +3,10 @@ from rest_framework import routers
 from .views import BoardViewSet
 
 router = routers.SimpleRouter()
-router.register(r'Boards', BoardViewSet)
+router.register(r'boards', BoardViewSet)
 
 urlpatterns = [
-    path('boards', include(router.urls))
+    path('', include(router.urls))
 #     path('boards/', .as_view(), name='boards-list'),                                    POST GET
 #     path('boards/<int:pk>/', .as_view(), name='board-detail'),                          GET PATCH DELETE
 
