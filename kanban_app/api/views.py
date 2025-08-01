@@ -5,3 +5,6 @@ from kanban_app.api.serializers import BoardSerializer
 class BoardViewSet(viewsets.ModelViewSet):
     queryset = Board.objects.all()
     serializer_class = BoardSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(owner_id=self.request.user)
