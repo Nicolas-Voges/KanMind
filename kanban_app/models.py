@@ -5,10 +5,6 @@ from django.core.exceptions import ValidationError
 
 class Board(models.Model):
     title = models.CharField(max_length=63)
-    member_count = models.IntegerField()
-    ticket_count = models.IntegerField()
-    tasks_to_do_count = models.IntegerField()
-    tasks_high_prio_count = models.IntegerField()
     owner_id = models.ForeignKey(UserAccount, on_delete=models.CASCADE, related_name='boards_as_owner')
     members = models.ManyToManyField(UserAccount, related_name="boards_as_member")
 
