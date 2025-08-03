@@ -20,8 +20,7 @@ class BoardSerializer(serializers.ModelSerializer):
                   'tasks_to_do_count',
                   'tasks_high_prio_count',
                   'owner_id',
-                  'members',
-                #   'members_data'
+                  'members'
         ]
 
         read_only_fields = [
@@ -29,8 +28,7 @@ class BoardSerializer(serializers.ModelSerializer):
             'member_count',
             'ticket_count',
             'tasks_to_do_count',
-            'tasks_high_prio_count',
-            # 'members_data'
+            'tasks_high_prio_count'
         ]
 
     members = serializers.PrimaryKeyRelatedField(
@@ -59,6 +57,7 @@ class BoardDetailSerializer(serializers.ModelSerializer):
         fields = ['id',
                   'title',
                   'owner_id',
+                  'owner_data',
                   'members',
                   'members_data',
                   'tasks'
@@ -66,24 +65,29 @@ class BoardDetailSerializer(serializers.ModelSerializer):
 
         read_only_fields = [
             'owner_id',
+            'owner_data',
             'members_data',
             'tasks'
         ]
 
     members = serializers.PrimaryKeyRelatedField(
         many=True,
-        queryset=User.objects.all()
+        queryset=User.objects.all(),
+        write_only=True
     )
-
     
     members_data = UserAccountSerializer(many=True, read_only=True, source='members')
-    
+
+    owner_data = UserAccountSerializer(read_only=True, source='owner')   
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)
         request = self.context.get('request')
 
         if request and request.method != 'PATCH':
-            rep.pop('members_data', None)
-
+            rep['members'] = rep.pop('members_data', None)
+            rep.pop('owner_data', None)
+        else:
+            rep.pop('owner_id', None)
+            rep.pop('tasks', None)
         return rep
