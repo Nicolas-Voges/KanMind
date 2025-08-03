@@ -3,7 +3,7 @@ from rest_framework import routers
 from .views import BoardViewSet
 
 router = routers.SimpleRouter()
-router.register(r'boards', BoardViewSet)
+router.register(r'boards', BoardViewSet, basename='board')
 
 urlpatterns = [
     path('', include(router.urls))

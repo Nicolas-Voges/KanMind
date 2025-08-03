@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 
 class Board(models.Model):
     title = models.CharField(max_length=63)
-    owner_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='boards_as_owner')
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='boards_as_owner')
     members = models.ManyToManyField(User, related_name="boards_as_member")
 
 
