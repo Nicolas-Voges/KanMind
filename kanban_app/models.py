@@ -2,15 +2,16 @@ from django.db import models
 from user_auth_app.models import UserAccount
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ValidationError
+from django.contrib.auth.models import User
 
 class Board(models.Model):
     title = models.CharField(max_length=63)
-    owner_id = models.ForeignKey(UserAccount, on_delete=models.CASCADE, related_name='boards_as_owner')
-    members = models.ManyToManyField(UserAccount, related_name="boards_as_member")
+    owner_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='boards_as_owner')
+    members = models.ManyToManyField(User, related_name="boards_as_member")
 
 
 class Task(models.Model):
-    board = models.ForeignKey(Board, on_delete=models.CASCADE)
+    board = models.ForeignKey(Board, on_delete=models.CASCADE, blank=True, null=True, related_name='tasks')
     title = models.CharField(max_length=63)
     description = models.CharField(max_length=127)
     status = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(3)])

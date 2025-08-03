@@ -2,6 +2,7 @@ from rest_framework import serializers
 from kanban_app.models import Board, Task, Comment
 from user_auth_app.models import UserAccount
 from user_auth_app.api.serializers import UserAccountSerializer
+from django.contrib.auth.models import User
 
 
 class BoardSerializer(serializers.ModelSerializer):
@@ -34,7 +35,7 @@ class BoardSerializer(serializers.ModelSerializer):
 
     members = serializers.PrimaryKeyRelatedField(
         many=True,
-        queryset=UserAccount.objects.all(),
+        queryset=User.objects.all(),
         write_only=True,
     )
 
@@ -42,7 +43,7 @@ class BoardSerializer(serializers.ModelSerializer):
 
     def get_member_count(self, obj):
         return obj.members.count()
-
+    
     def get_ticket_count(self, obj):
         return obj.tasks.count()
 
@@ -53,11 +54,13 @@ class BoardSerializer(serializers.ModelSerializer):
         return obj.tasks.filter(priority=2).count()
     
 
-def to_representation(self, instance):
-    rep = super().to_representation(instance)
-    request = self.context.get('request')
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        request = self.context.get('request')
 
-    if request and request.method != 'PATCH':
-        rep.pop('members_data', None)
+        if request and request.method != 'PATCH':
+            rep.pop('members_data', None)
 
-    return rep
+        return rep
+    
+
