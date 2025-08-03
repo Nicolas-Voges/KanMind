@@ -21,7 +21,7 @@ class BoardSerializer(serializers.ModelSerializer):
                   'tasks_high_prio_count',
                   'owner_id',
                   'members',
-                  'members_data'
+                #   'members_data'
         ]
 
         read_only_fields = [
@@ -30,16 +30,15 @@ class BoardSerializer(serializers.ModelSerializer):
             'ticket_count',
             'tasks_to_do_count',
             'tasks_high_prio_count',
-            'members_data'
+            # 'members_data'
         ]
 
     members = serializers.PrimaryKeyRelatedField(
         many=True,
         queryset=User.objects.all(),
-        write_only=True,
+        write_only=True
     )
 
-    members_data = UserAccountSerializer(many=True, read_only=True, source='members')
 
     def get_member_count(self, obj):
         return obj.members.count()
@@ -54,6 +53,32 @@ class BoardSerializer(serializers.ModelSerializer):
         return obj.tasks.filter(priority=2).count()
     
 
+class BoardDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Board
+        fields = ['id',
+                  'title',
+                  'owner_id',
+                  'members',
+                  'members_data',
+                  'tasks'
+        ]
+
+        read_only_fields = [
+            'owner_id',
+            'members_data',
+            'tasks'
+        ]
+
+    members = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=User.objects.all()
+    )
+
+    
+    members_data = UserAccountSerializer(many=True, read_only=True, source='members')
+    
+
     def to_representation(self, instance):
         rep = super().to_representation(instance)
         request = self.context.get('request')
@@ -62,5 +87,3 @@ class BoardSerializer(serializers.ModelSerializer):
             rep.pop('members_data', None)
 
         return rep
-    
-
