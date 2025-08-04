@@ -1,9 +1,12 @@
 from rest_framework import viewsets
+from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import generics
 from django.db.models import Q
-from kanban_app.models import Board
-from kanban_app.api.serializers import BoardSerializer, BoardDetailSerializer
-from user_auth_app.api.permissions import IsMemberOrOwner
+from kanban_app.models import Board, Task
+from .serializers import BoardSerializer, BoardDetailSerializer, \
+TaskSerializer
+from user_auth_app.api.permissions import IsMemberOrOwner, IsMember
 
 class BoardViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, IsMemberOrOwner]
@@ -23,3 +26,7 @@ class BoardViewSet(viewsets.ModelViewSet):
         ).distinct()
     
 
+class TaskCreateView(generics.CreateAPIView):
+    queryset = Task.objects.all()
+    serializer_class = TaskSerializer
+    permission_classes = [IsAuthenticated, IsMember]

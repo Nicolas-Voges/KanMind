@@ -91,3 +91,18 @@ class BoardDetailSerializer(serializers.ModelSerializer):
             rep.pop('owner_id', None)
             rep.pop('tasks', None)
         return rep
+    
+
+class TaskSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model=Task
+        fields= '__all__'
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        request = self.context.get('request')
+
+        if request and request.method == 'POST':
+            rep['comments_count'] = instance.comments.count()
+        return rep
