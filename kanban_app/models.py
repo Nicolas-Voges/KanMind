@@ -14,10 +14,32 @@ class Task(models.Model):
     board = models.ForeignKey(Board, on_delete=models.CASCADE, blank=True, null=True, related_name='tasks')
     title = models.CharField(max_length=63)
     description = models.CharField(max_length=127)
-    status = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(3)])
-    priority = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(2)])
+    
+    class Status(models.TextChoices):
+        TODO = 'to-do', 'To Do'
+        IN_PROGRESS = 'in-progress', 'In Progress'
+        REVIEW = 'review', 'In Review'
+        DONE = 'done', 'Done'
+
+    class Priority(models.TextChoices):
+        LOW = 'low', 'Low'
+        MEDIUM = 'medium', 'Medium'
+        HIGH = 'high', 'High'
+
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.TODO
+    )
+
+    priority = models.CharField(
+        max_length=10,
+        choices=Priority.choices,
+        default=Priority.MEDIUM
+    )
+
     assignee = models.ForeignKey(
-        UserAccount,
+        User,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -25,7 +47,7 @@ class Task(models.Model):
     )
 
     reviewer = models.ForeignKey(
-        UserAccount,
+        User,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
