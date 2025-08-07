@@ -92,3 +92,14 @@ class CommentCreateListView(generics.ListCreateAPIView):
             task_id=task_id,
             created_at=timezone.now().date()
         )
+
+
+class CommentDestroyView(mixins.DestroyModelMixin,
+                         viewsets.GenericViewSet):
+
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        task_id = self.kwargs['task_id']
+        comment_id = self.kwargs['comment_id']
+        return Comment.objects.filter()
