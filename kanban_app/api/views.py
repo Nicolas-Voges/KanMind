@@ -74,3 +74,21 @@ class TaskGetDetailView(APIView):
         serializer = TaskSerializer(
             tasks, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+class CommentCreateListView(generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticated, IsCommentBoardMember]
+    serializer_class = CommentSerializer
+
+    def get_queryset(self):
+        task_id = self.kwargs['task_id']
+        return Comment.objects.filter(task_id=task_id)
+
+    def perform_create(self, serializer):
+        task_id = self.kwargs['task_id']
+        user_id = self.request.user.id
+        serializer.save(
+            author_id=user_id,
+            task_id=task_id,
+            created_at=timezone.now().date()
+        )
