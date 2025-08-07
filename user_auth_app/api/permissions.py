@@ -60,3 +60,11 @@ class IsTaskOwnerOrCreator(BasePermission):
         board = obj.board
         creator = obj.creator
         return request.user in [board.owner, creator]
+    
+
+class IsCommentBoardMember(BasePermission):
+    def has_permission(self, request, view):
+        user = request.user
+        task_id = view.kwargs['task_id']
+        board = Task.objects.get(id=task_id).board
+        return user.id in board.members.values_list('id', flat=True)
