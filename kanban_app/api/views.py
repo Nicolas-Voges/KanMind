@@ -39,3 +39,38 @@ class TaskCreateView(generics.CreateAPIView):
     def perform_create(self, serializer):
         serializer.save(creator=self.request.user)
 
+
+class TaskDetailUpdateDestroyView(
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    GenericAPIView
+):
+
+    queryset = Task.objects.all()
+    serializer_class = TaskSerializer
+
+    def get_permissions(self):
+        if self.request.method == 'DELETE':
+            return [IsAuthenticated(), IsTaskOwnerOrCreator(),]
+        return [IsAuthenticated(), IsTaskBoardMember()]
+
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+
+
+class TaskGetDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if "assigned-to-me" in request.path:
+            tasks = Task.objects.filter(
+                assignee=request.user, board__members=request.user)
+        else:
+            tasks = Task.objects.filter(
+                reviewer=request.user, board__members=request.user)
+        serializer = TaskSerializer(
+            tasks, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
