@@ -195,3 +195,34 @@ class BoardDetailSerializer(serializers.ModelSerializer):
             rep.pop('tasks', None)
 
         return rep
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = [
+            'id',
+            'created_at',
+            'author',
+            'content'
+        ]
+
+        read_only_fields = [
+            'id',
+            'created_at',
+            'author'
+        ]
+
+    
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        author = User.objects.get(id=instance.author.id)
+        rep['author'] = author.username
+
+        ordered = {
+            'id': rep.get('id'),
+            'created_at': rep.get('created_at'),
+            'author': rep.get('author'),
+            'content': rep.get('content')
+        }
+        return ordered
