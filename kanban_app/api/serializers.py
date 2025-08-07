@@ -1,8 +1,8 @@
 from rest_framework import serializers
-from kanban_app.models import Board, Task, Comment
-from user_auth_app.models import UserAccount
-from user_auth_app.api.serializers import UserAccountSerializer
 from django.contrib.auth.models import User
+from user_auth_app.api.serializers import UserAccountSerializer
+from user_auth_app.models import UserAccount
+from kanban_app.models import Board, Task, Comment
 
 
 class BoardSerializer(serializers.ModelSerializer):
@@ -45,23 +45,11 @@ class BoardSerializer(serializers.ModelSerializer):
         return obj.tasks.count()
 
     def get_tasks_to_do_count(self, obj):
-        return obj.tasks.filter(status=0).count()
+        return obj.tasks.filter(status="to-do").count()
 
     def get_tasks_high_prio_count(self, obj):
-        return obj.tasks.filter(priority=2).count()
+        return obj.tasks.filter(priority="high").count()
     
-    # def to_representation(self, instance):
-    #     rep = super().to_representation(instance)
-    #     ordered = {
-    #             'id': rep.get('id'),
-    #             'title': rep.get('title'),
-    #             'owner_id': rep.get('owner_id'),
-    #             'owner_data': rep.get('owner_data'),
-    #             'members': rep.get('members'),
-    #             'members_data': rep.get('members_data'),
-    #             'tasks': rep.get('tasks'),
-    #         }
-    #     return ordered
     
 class TaskSerializer(serializers.ModelSerializer):
     
@@ -79,15 +67,27 @@ class TaskSerializer(serializers.ModelSerializer):
             'reviewer',
             'reviewer_id',
             'due_date',
+            'creator'
         ]
-        ordered=True
+
+        read_only_fields = [
+            'creator'
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        request = self.context.get('request')
+
+        if request and request.method != 'POST':
+            self.fields['board'].read_only = True
 
     assignee = UserAccountSerializer(read_only=True)
     assignee_id = serializers.PrimaryKeyRelatedField(
         source='assignee',
         queryset=User.objects.all(),
         write_only=True,
-        required=False
+        required=False,
+        allow_null=True
     )
 
     reviewer = UserAccountSerializer(read_only=True)
@@ -95,44 +95,41 @@ class TaskSerializer(serializers.ModelSerializer):
         source='reviewer',
         queryset=User.objects.all(),
         write_only=True,
-        required=False
+        required=False,
+        allow_null=True
+    )
+
+    creator = serializers.PrimaryKeyRelatedField(
+        read_only=True,
+        required=False,
+        allow_null=True
     )
 
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)
         request = self.context.get('request')
+        path = request.path
 
+        ordered = {
+            'id': rep.get('id'),
+            'board': rep.get('board'),
+            'title': rep.get('title'),
+            'description': rep.get('description'),
+            'status': rep.get('status'),
+            'priority': rep.get('priority'),
+            'assignee': rep.get('assignee'),
+            'reviewer': rep.get('reviewer'),
+            'due_date': rep.get('due_date'),
+        }
+        if request and request.method != 'PATCH':
+            ordered['comments_count'] = instance.comments.count()
         
+        if request and request.method == 'GET' and '/boards/' in path or request.method in ['PATCH', 'PUT']:
+            ordered.pop('board', None)
+        return ordered
+    
 
-        if request and request.method == 'POST':
-            ordered = {
-                'id': rep.get('id'),
-                'board': rep.get('board'),
-                'title': rep.get('title'),
-                'description': rep.get('description'),
-                'status': rep.get('status'),
-                'priority': rep.get('priority'),
-                'assignee': rep.get('assignee'),
-                'reviewer': rep.get('reviewer'),
-                'due_date': rep.get('due_date'),
-            }
-            ordered['comments_count'] = instance.comments.count()
-            return ordered
-        elif request and request.method == 'GET':
-            ordered = {
-                'id': rep.get('id'),
-                'title': rep.get('title'),
-                'description': rep.get('description'),
-                'status': rep.get('status'),
-                'priority': rep.get('priority'),
-                'assignee': rep.get('assignee'),
-                'reviewer': rep.get('reviewer'),
-                'due_date': rep.get('due_date'),
-            }
-            ordered['comments_count'] = instance.comments.count()
-            return ordered
-        return rep
 class BoardDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Board
@@ -172,9 +169,7 @@ class BoardDetailSerializer(serializers.ModelSerializer):
                 'id': rep.get('id'),
                 'title': rep.get('title'),
                 'owner_id': rep.get('owner_id'),
-                # 'owner_data': rep.get('owner_data'),
                 'members': rep.get('members'),
-                # 'members_data': rep.get('members_data'),
                 'tasks': rep.get('tasks'),
             }
             return ordered
@@ -182,17 +177,5 @@ class BoardDetailSerializer(serializers.ModelSerializer):
         else:
             rep.pop('owner_id', None)
             rep.pop('tasks', None)
-            # ordered = {
-            #     'id': rep.get('id'),
-            #     'title': rep.get('title'),
-            #     'owner_id': rep.get('owner_id'),
-            #     'owner_data': rep.get('owner_data'),
-            #     'members': rep.get('members'),
-            #     'members_data': rep.get('members_data'),
-            #     'tasks': rep.get('tasks'),
-            # }
 
         return rep
-    
-
-
