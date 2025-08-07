@@ -94,12 +94,12 @@ class CommentCreateListView(generics.ListCreateAPIView):
         )
 
 
-class CommentDestroyView(mixins.DestroyModelMixin,
-                         viewsets.GenericViewSet):
+class CommentDestroyView(generics.DestroyAPIView):
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsCommentBoardMember]
+    lookup_field = 'id'
+    lookup_url_kwarg = 'comment_id'
 
     def get_queryset(self):
         task_id = self.kwargs['task_id']
-        comment_id = self.kwargs['comment_id']
-        return Comment.objects.filter()
+        return Comment.objects.filter(task_id=task_id)

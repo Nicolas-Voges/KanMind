@@ -13,7 +13,6 @@ urlpatterns = [
     path('tasks/assigned-to-me/', TaskGetDetailView.as_view(), name='assigned-to-me'),
     path('tasks/reviewing/', TaskGetDetailView.as_view(), name='review'),
     path('tasks/<int:task_id>/comments/', CommentCreateListView.as_view(), name='review'),
-#     path('tasks/<int:task_id>/comments/<int:comment_id>/', .as_view(), name='review')     # DELETE
-
+    path('tasks/<int:task_id>/comments/<int:comment_id>/', CommentDestroyView.as_view(), name='review')
 #     path('email-check/', .as_view(), name='email-check')                                  # GET
 ]
