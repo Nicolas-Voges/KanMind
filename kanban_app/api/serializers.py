@@ -105,6 +105,22 @@ class TaskSerializer(serializers.ModelSerializer):
         allow_null=True
     )
 
+    def validate(self, data):
+        board = data.get('board') or getattr(self.instance, 'board', None)
+        assignee = data.get('assignee')
+        reviewer = data.get('reviewer')
+
+        if not board:
+            raise serializers.ValidationError("Board is required to validate members.")
+
+        if assignee is not None and assignee not in board.members.all():
+            raise serializers.ValidationError({"assignee_id": "Assignee must be a member of the board."})
+
+        if reviewer is not None and reviewer not in board.members.all():
+            raise serializers.ValidationError({"reviewer_id": "Reviewer must be a member of the board."})
+
+        return data
+
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)
