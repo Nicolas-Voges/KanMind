@@ -1,7 +1,6 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
-from user_auth_app.models import UserAccount
 
 class Board(models.Model):
     title = models.CharField(max_length=63)

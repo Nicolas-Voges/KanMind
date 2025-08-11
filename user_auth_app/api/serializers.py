@@ -1,6 +1,5 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from user_auth_app.models import UserAccount
 
 class UserAccountSerializer(serializers.ModelSerializer):
     # email = serializers.EmailField(source='user.email')
@@ -18,7 +17,7 @@ class UserAccountSerializer(serializers.ModelSerializer):
 class RegistrationSerializer(serializers.ModelSerializer):
     
     class Meta:
-        model = UserAccount
+        model = User
         fields = [
             'fullname',
             'email',
