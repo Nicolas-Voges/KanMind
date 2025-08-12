@@ -2,7 +2,6 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 
 class UserAccountSerializer(serializers.ModelSerializer):
-    # email = serializers.EmailField(source='user.email')
     fullname = serializers.SerializerMethodField()
 
     class Meta:
@@ -10,12 +9,13 @@ class UserAccountSerializer(serializers.ModelSerializer):
         fields = ['id', 'email', 'fullname']
 
     def get_fullname(self, obj):
-        # return f"{obj.first_name} {obj.last_name}".strip()
         return f"{obj.username}".strip()
     
 
 class RegistrationSerializer(serializers.ModelSerializer):
-    
+    fullname = serializers.CharField(write_only=True)  # kommt vom Client
+    repeated_password = serializers.CharField(write_only=True)
+
     class Meta:
         model = User
         fields = [
@@ -29,15 +29,26 @@ class RegistrationSerializer(serializers.ModelSerializer):
                 'write_only': True
             }
         }
+        
 
-    def save(self):
-        pw = self.validated_data['password']
-        repeated_pw = self.validated_data['repeated_password']
+    def validate_email(self, value):
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError('Email already exists')
+        return value
+
+
+    def create(self, validated_data):
+        fullname = validated_data.pop('fullname')
+        email = validated_data.pop('email')
+        password = validated_data.pop('password')
+        repeated_password = validated_data.pop('repeated_password')
+
+        if password != repeated_password:
+            raise serializers.ValidationError("Passwords do not match")
         
-        if pw != repeated_pw:
-            raise serializers.ValidationError('Password dont match')
-        
-        account = User(email=self.validated_data['email'], username=self.validated_data['username'])
-        account.set_password(pw)
-        account.save()
-        return account
+        user = User.objects.create_user(
+            username=fullname,
+            email=email,
+            password=password
+        )
+        return user
