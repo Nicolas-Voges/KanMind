@@ -9,7 +9,7 @@ class Board(models.Model):
 
 
 class Task(models.Model):
-    board = models.ForeignKey(Board, on_delete=models.CASCADE, related_name='board')
+    board = models.ForeignKey(Board, on_delete=models.CASCADE, related_name='tasks')
     title = models.CharField(max_length=63)
     description = models.CharField(max_length=127)
     
