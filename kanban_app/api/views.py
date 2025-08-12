@@ -1,5 +1,6 @@
-from django.utils import timezone
 from django.db.models import Q
+from django.utils import timezone
+from django.contrib.auth.models import User
 from rest_framework import viewsets, status, generics, mixins
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -8,6 +9,7 @@ from rest_framework.generics import GenericAPIView
 from user_auth_app.api.permissions import IsBoardMemberOrOwner, IsTaskBoardMember, \
     IsTaskOwnerOrCreator, IsCommentBoardMember
 from kanban_app.models import Board, Task, Comment
+from user_auth_app.api.serializers import UserAccountSerializer
 from .serializers import BoardSerializer, BoardDetailSerializer, \
     TaskSerializer, CommentSerializer
 
@@ -102,3 +104,20 @@ class CommentDestroyView(generics.DestroyAPIView):
     def get_queryset(self):
         task_id = self.kwargs['task_id']
         return Comment.objects.filter(task_id=task_id)
+    
+
+class EmailCheckView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        email = request.query_params.get('email')
+        if not email:
+            return Response({"error": "Email parameter is required"}, status=400)
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response({"error": "Email not found"}, status=404)
+
+        serializer = UserAccountSerializer(user)
+        return Response(serializer.data, status=200)
