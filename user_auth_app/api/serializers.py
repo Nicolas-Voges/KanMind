@@ -13,7 +13,7 @@ class UserAccountSerializer(serializers.ModelSerializer):
     
 
 class RegistrationSerializer(serializers.ModelSerializer):
-    fullname = serializers.CharField(write_only=True)  # kommt vom Client
+    fullname = serializers.CharField(write_only=True)
     repeated_password = serializers.CharField(write_only=True)
 
     class Meta:
@@ -52,3 +52,26 @@ class RegistrationSerializer(serializers.ModelSerializer):
             password=password
         )
         return user
+    
+
+class LoginSerializer(serializers.Serializer):
+    email = serializers.CharField()
+    password = serializers.CharField(write_only=True)
+
+    def validate(self, attrs):
+        email = attrs.get('email')
+        password = attrs.get('password')
+
+        if not email or not password:
+            raise serializers.ValidationError('Both email and password are required')
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            raise serializers.ValidationError('Invalid email or password')
+
+        if not user.check_password(password):
+            raise serializers.ValidationError('Invalid email or password')
+
+        attrs['user'] = user
+        return attrs
