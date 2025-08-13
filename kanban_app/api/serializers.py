@@ -1,4 +1,4 @@
-   """
+"""
 Serializers for the Kanban application API.
 
 This module defines serializers for converting Board, Task, and Comment

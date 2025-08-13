@@ -17,7 +17,7 @@ class IsBoardMemberOrOwner(BasePermission):
 
 class IsTaskBoardMember(BasePermission):
     def has_object_permission(self, request, view, obj):
-        board_id = request.data.get('board')
+        board_id = obj.board_id
         if not board_id:
             raise NotFound("Board ID not provided.")
 
