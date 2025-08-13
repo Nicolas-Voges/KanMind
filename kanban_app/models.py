@@ -28,6 +28,9 @@ class Board(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='boards_as_owner')
     members = models.ManyToManyField(User, related_name="boards_as_member")
 
+    def __str__(self):
+        return f"Board: {self.id}"
+
 
 class Task(models.Model):
     """
@@ -97,6 +100,9 @@ class Task(models.Model):
 
     due_date = models.DateField()
 
+    def __str__(self):
+        return f"Task: {self.id}"
+
 
 class Comment(models.Model):
     """
@@ -130,4 +136,4 @@ class Comment(models.Model):
         
     
     def __str__(self):
-        return f"{self.id}"
+        return f"Comment: {self.id}"
