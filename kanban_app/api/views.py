@@ -5,7 +5,8 @@ from rest_framework import viewsets, status, generics, mixins
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.generics import GenericAPIView
+from rest_framework.generics import GenericAPIView, get_object_or_404
+from rest_framework.exceptions import PermissionDenied
 from user_auth_app.api.permissions import IsBoardMemberOrOwner, IsTaskBoardMember, \
     IsTaskOwnerOrCreator, IsCommentBoardMember
 from kanban_app.models import Board, Task, Comment
@@ -27,9 +28,7 @@ class BoardViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        return Board.objects.filter(
-            Q(owner=user) | Q(members=user)
-        ).distinct()
+        return Board.objects.all().distinct()
 
 
 class TaskCreateView(generics.CreateAPIView):
@@ -83,6 +82,7 @@ class CommentCreateListView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         task_id = self.kwargs['task_id']
+        get_object_or_404(Task, pk=task_id)
         return Comment.objects.filter(task_id=task_id)
 
     def perform_create(self, serializer):

@@ -52,6 +52,13 @@ class BoardSerializer(serializers.ModelSerializer):
     
 class TaskSerializer(serializers.ModelSerializer):
     
+    title = serializers.CharField(required=True, allow_blank=False)
+    board = serializers.PrimaryKeyRelatedField(
+        queryset=Board.objects.all(),
+        required=True)
+    priority = serializers.CharField(required=True, allow_blank=False)
+    status = serializers.CharField(required=True, allow_blank=False)
+    due_date = serializers.DateField(required=True, allow_null=False)
     class Meta:
         model=Task
         fields= [

@@ -1,5 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework.permissions import BasePermission
+from rest_framework.generics import get_object_or_404
+from rest_framework.exceptions import NotFound
 from kanban_app.models import Board, Task
 
 class IsBoardMemberOrOwner(BasePermission):
@@ -14,15 +16,15 @@ class IsBoardMemberOrOwner(BasePermission):
         
 
 class IsTaskBoardMember(BasePermission):
-    def has_permission(self, request, view):
+    def has_object_permission(self, request, view, obj):
         board_id = request.data.get('board')
         if not board_id:
-            return False
+            raise NotFound("Board ID not provided.")
 
         try:
             board = Board.objects.get(id=board_id)
         except Board.DoesNotExist:
-            return False
+            raise NotFound("Board not found.")
 
         return request.user in board.members.all()
     
@@ -66,5 +68,6 @@ class IsCommentBoardMember(BasePermission):
     def has_permission(self, request, view):
         user = request.user
         task_id = view.kwargs['task_id']
-        board = Task.objects.get(id=task_id).board
+        task = get_object_or_404(Task, pk=task_id)
+        board = task.board
         return user.id in board.members.values_list('id', flat=True)

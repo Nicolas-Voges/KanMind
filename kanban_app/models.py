@@ -82,8 +82,8 @@ class Comment(models.Model):
     )
 
     def clean(self):
-        if (self.board and self.task) or (not self.board and not self.task):
-            raise ValidationError('A comment must be assigned to either a board or a task – not both and not neither.')
+        if not self.task:
+            raise ValidationError('A comment must be assigned to a task.')
         
     
     def __str__(self):
