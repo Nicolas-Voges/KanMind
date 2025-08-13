@@ -1,7 +1,20 @@
+"""
+Serializers for user authentication and account management.
+
+This module provides serializers for:
+- Viewing basic user account data.
+- Registering new users with password confirmation.
+- Authenticating users via email and password.
+"""
+
+
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
 class UserAccountSerializer(serializers.ModelSerializer):
+    """
+    Serializer for retrieving basic user account details.
+    """
     fullname = serializers.SerializerMethodField()
 
     class Meta:
@@ -9,10 +22,22 @@ class UserAccountSerializer(serializers.ModelSerializer):
         fields = ['id', 'email', 'fullname']
 
     def get_fullname(self, obj):
+        """
+        Return the full name for the user.
+
+        Currently uses the username field as the full name.
+        """
         return f"{obj.username}".strip()
     
 
 class RegistrationSerializer(serializers.ModelSerializer):
+    """
+    Serializer for registering a new user account.
+
+    Includes fields for full name, email, password, and password confirmation.
+    """
+
+
     fullname = serializers.CharField(write_only=True)
     repeated_password = serializers.CharField(write_only=True)
 
@@ -32,12 +57,18 @@ class RegistrationSerializer(serializers.ModelSerializer):
         
 
     def validate_email(self, value):
+        """
+        Ensure the email address is unique.
+        """
         if User.objects.filter(email=value).exists():
             raise serializers.ValidationError('Email already exists')
         return value
 
 
     def create(self, validated_data):
+        """
+        Create a new user instance after validating matching passwords.
+        """
         fullname = validated_data.pop('fullname')
         email = validated_data.pop('email')
         password = validated_data.pop('password')
@@ -55,10 +86,23 @@ class RegistrationSerializer(serializers.ModelSerializer):
     
 
 class LoginSerializer(serializers.Serializer):
+    """
+    Serializer for user login using email and password.
+    """
+
+
     email = serializers.CharField()
     password = serializers.CharField(write_only=True)
 
     def validate(self, attrs):
+        """
+        Validate email and password combination.
+
+        Raises a validation error if:
+        - Email or password is missing.
+        - User does not exist.
+        - Password does not match.
+        """
         email = attrs.get('email')
         password = attrs.get('password')
 
