@@ -38,23 +38,23 @@ KanMind provides a RESTful API for managing boards, tasks, and comments in a Kan
    git clone https://github.com/Nicolas-Voges/KanMind.git
    cd KanMind
 
-    Set up a virtual environment
+2. **Set up a virtual environment**
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate
 
-python3 -m venv venv
-source venv/bin/activate
+3. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
 
-Install dependencies
+4. **Apply migrations**
+   ```bash
+   python manage.py migrate
 
-pip install -r requirements.txt
+5. **Create a superuser (optional, for admin access)**
+   ```bash
+   python manage.py createsuperuser
 
-Apply migrations
-
-python manage.py migrate
-
-Create a superuser (optional, for admin access)
-
-python manage.py createsuperuser
-
-Run the development server
-
-python manage.py runserver
+6. **Run the development server**
+   ```bash
+   python manage.py runserver
