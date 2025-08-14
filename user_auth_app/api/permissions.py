@@ -38,12 +38,12 @@ class IsTaskBoardMember(BasePermission):
     """
 
 
-    def has_object_permission(self, request, view, obj):
+    def has_permission(self, request, view):
         """
         Allow access if the user is a member of the board associated with the task.
         Raise a NotFound error if the board does not exist.
         """
-        board_id = obj.board_id
+        board_id = request.data.get("board")
         if not board_id:
             raise NotFound("Board ID not provided.")
 
@@ -51,8 +51,8 @@ class IsTaskBoardMember(BasePermission):
             board = Board.objects.get(id=board_id)
         except Board.DoesNotExist:
             raise NotFound("Board not found.")
-
-        return request.user in board.members.all()
+        
+        return board.members.filter(pk=request.user.pk).exists()
     
 
 class IsTaskBoardOwner(BasePermission):
