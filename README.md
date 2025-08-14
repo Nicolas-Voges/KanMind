@@ -40,8 +40,8 @@ KanMind provides a RESTful API for managing boards, tasks, and comments in a Kan
 
 2. **Set up a virtual environment**
    ```bash
-   python3 -m venv venv
-   source venv/bin/activate
+   python -m venv env
+   "env/Scripts/activate"
 
 3. **Install dependencies**
    ```bash
