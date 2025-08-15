@@ -58,10 +58,9 @@ class BoardViewSet(viewsets.ModelViewSet):
         """
         Return a queryset of all boards accessible to the requesting user.
         """
+
         user = self.request.user
-        return Board.objects.filter(
-            Q(owner=user) | Q(members=user)
-        ).distinct()
+        return Board.objects.all().distinct()
 
 
 class TaskCreateView(generics.CreateAPIView):

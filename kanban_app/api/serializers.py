@@ -250,7 +250,6 @@ class BoardDetailSerializer(serializers.ModelSerializer):
     members_data = UserAccountSerializer(many=True, read_only=True, source='members')
     owner_data = UserAccountSerializer(read_only=True, source='owner')
     tasks = TaskSerializer(many=True, read_only=True)
-
     def to_representation(self, instance):
         """
         Customize board representation.
