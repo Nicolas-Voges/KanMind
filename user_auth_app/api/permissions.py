@@ -43,9 +43,18 @@ class IsTaskBoardMember(BasePermission):
         Allow access if the user is a member of the board associated with the task.
         Raise a NotFound error if the board does not exist.
         """
-        board_id = request.data.get("board")
+        if request.method != 'PATCH':
+            board_id = request.data.get("board")
+        else:
+            task_id = view.kwargs.get('pk')
+            try:
+                board_id = Task.objects.get(id=task_id).board_id
+            except:
+                raise NotFound("Board not found.")
+
         if not board_id:
-            raise NotFound("Board ID not provided.")
+                raise NotFound("Board ID not provided.")
+
 
         try:
             board = Board.objects.get(id=board_id)
