@@ -65,6 +65,15 @@ class RegistrationSerializer(serializers.ModelSerializer):
         return value
 
 
+    def validate_fullname(self, value):
+        """
+        Ensure the user name is unique.
+        """
+        if User.objects.filter(username=value).exists():
+            raise serializers.ValidationError('User name already exists')
+        return value
+
+
     def create(self, validated_data):
         """
         Create a new user instance after validating matching passwords.
