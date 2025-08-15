@@ -56,10 +56,8 @@ class BoardViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """
-        Return a queryset of all boards accessible to the requesting user.
+        Return a queryset of all boards.
         """
-
-        user = self.request.user
         return Board.objects.all().distinct()
 
 
