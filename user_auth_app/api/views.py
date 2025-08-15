@@ -7,6 +7,7 @@ This module provides:
 """
 
 
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
@@ -48,10 +49,11 @@ class RegistrationView(APIView):
                 'email': save_account.email,
                 'user_id': save_account.id
             }
+            return Response(data)
         else:
             data = serializer.errors
 
-        return Response(data)
+            return Response(data, status=status.HTTP_400_BAD_REQUEST)
     
 
 class CustomLoginView(APIView):
