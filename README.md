@@ -27,7 +27,7 @@ KanMind provides a RESTful API for managing boards, tasks, and comments in a Kan
 
 ## Requirements
 
-- Python 3.8 or higher  
+- Python 3.8.0 or higher  
 - A virtual environment (recommended)  
 - Packages listed in `requirements.txt`
 
